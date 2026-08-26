@@ -1,0 +1,1 @@
+Mock video placeholder. Install ffmpeg to render mp4 files.

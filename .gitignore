@@ -1,0 +1,7 @@
+node_modules
+dist
+.env
+*.log
+backend/data/*.sqlite
+backend/data/*.sqlite-*
+backend/public/generated

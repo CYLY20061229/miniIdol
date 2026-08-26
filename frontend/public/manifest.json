@@ -1,0 +1,17 @@
+{
+  "name": "出道曲模拟器",
+  "short_name": "出道曲",
+  "description": "生成你的原创出道曲企划",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111225",
+  "theme_color": "#111225",
+  "icons": [
+    {
+      "src": "/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
