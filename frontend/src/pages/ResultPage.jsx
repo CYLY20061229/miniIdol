@@ -5,6 +5,7 @@ import { api } from "../lib/api.js";
 
 const profileLabels = [
   ["stageName", "艺名"],
+  ["songTitle", "歌名"],
   ["mood", "氛围"],
   ["genre", "曲风"],
   ["stageFeeling", "舞台感"],

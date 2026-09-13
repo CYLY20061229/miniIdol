@@ -40,6 +40,10 @@ PUBLIC_BASE_URL=http://localhost:3001
 COVER_PROVIDER=mock
 QWEN_IMAGE_API_KEY=
 QWEN_IMAGE_BASE_URL=https://dashscope.aliyuncs.com
+QWEN_IMAGE_MODEL=wanx2.1-t2i-turbo
+QWEN_IMAGE_SIZE=1024*1024
+QWEN_IMAGE_POLL_INTERVAL_MS=3000
+QWEN_IMAGE_POLL_TIMEOUT_MS=180000
 ```
 
 所有密钥只在后端读取，不会进入前端代码。
@@ -95,7 +99,7 @@ curl http://localhost:3001/api/admin/codes \
 MUSIC_PROVIDER=mock
 ```
 
-切换到 Mureka 骨架：
+切换到 Mureka：
 
 ```env
 MUSIC_PROVIDER=mureka
@@ -104,7 +108,7 @@ MUREKA_BASE_URL=https://api.mureka.ai
 MUREKA_MODEL=your_model
 ```
 
-Mureka 的 endpoint、payload、轮询和结果解析集中在 `backend/src/providers/murekaProvider.js`。已实现正式调用流程：`POST /v1/song/generate` 创建任务，`GET /v1/song/query/:taskId` 轮询任务，成功后从 `choices` 中读取音频 URL。未配置 `MUREKA_API_KEY` 时会 fallback 到 `MockMusicProvider`，方便完整流程本地跑通。
+Mureka 的 endpoint、payload、轮询和结果解析集中在 `backend/src/providers/murekaProvider.js`。已实现正式调用流程：`POST /v1/song/generate` 创建任务，`GET /v1/song/query/:taskId` 轮询任务，成功后从 `choices` 中读取音频 URL。歌名、歌词主题、语言会一起进入 Mureka 的生成 prompt，并用于生成原创歌词。未配置 `MUREKA_API_KEY` 时会 fallback 到 `MockMusicProvider`，方便完整流程本地跑通。
 
 ## 配置千问封面生成
 
@@ -114,24 +118,34 @@ Mureka 的 endpoint、payload、轮询和结果解析集中在 `backend/src/prov
 COVER_PROVIDER=mock
 ```
 
-切换到千问骨架：
+切换到千问图片生成：
 
 ```env
 COVER_PROVIDER=qwen
 QWEN_IMAGE_API_KEY=your_key
 QWEN_IMAGE_BASE_URL=https://dashscope.aliyuncs.com
+QWEN_IMAGE_MODEL=wanx2.1-t2i-turbo
+QWEN_IMAGE_SIZE=1024*1024
 ```
 
-千问 API 的实际请求集中在 `backend/src/providers/qwenCoverProvider.js`，当前保留 mock fallback。封面约束是方形 1080x1080，不出现真实艺人肖像、真实团体 logo 或版权角色。
+千问 API 的实际请求集中在 `backend/src/providers/qwenCoverProvider.js`，使用 DashScope 异步图片生成接口，生成后会下载到后端 `public/generated` 并返回可访问 URL。封面约束是方形，不出现真实艺人肖像、真实团体 logo 或版权角色。未配置 `QWEN_IMAGE_API_KEY` 时会 fallback 到 mock 封面。
 
 ## ffmpeg 视频合成
 
-`backend/src/services/videoRenderer.js` 会优先检测本机 `ffmpeg`。如果可用，会尝试用封面图和生成音频合成方形 MP4；如果不可用或合成失败，会返回 mock video URL。
+`backend/src/services/videoRenderer.js` 会优先检测本机 `ffmpeg`。如果可用，会把静态封面图作为画面、生成歌曲作为音频，合成一个方形 MP4；如果不可用或合成失败，会返回 mock video URL。
 
 macOS 可安装：
 
 ```bash
 brew install ffmpeg
+```
+
+Ubuntu 服务器可安装：
+
+```bash
+sudo apt update
+sudo apt install -y ffmpeg
+ffmpeg -version
 ```
 
 ## 完整流程

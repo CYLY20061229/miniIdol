@@ -57,7 +57,12 @@ export function startGenerationJob(jobId) {
           (song) => {
             job.songUrl = song.songUrl;
           },
-          () => musicProvider.generateFullSong({ prompt: intent.safeMusicPrompt })
+          () =>
+            musicProvider.generateFullSong({
+              prompt: intent.safeMusicPrompt,
+              profile: intent.profile,
+              removedReferences: intent.removedReferences
+            })
         ),
         runConcurrentStep(
           job,
@@ -69,6 +74,7 @@ export function startGenerationJob(jobId) {
             coverProvider.generateCover({
               originalInputSummary: intent.originalInputSummary,
               profile: intent.profile,
+              removedReferences: intent.removedReferences,
               intentId: intent.id
             })
         )

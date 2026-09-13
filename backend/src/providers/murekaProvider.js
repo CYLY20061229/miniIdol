@@ -13,36 +13,71 @@ function truncate(text, maxLength) {
   return String(text || "").slice(0, maxLength);
 }
 
-function createOriginalLyrics() {
-  return `[Verse]
-Lights are waking under my feet
-First breath shaking with the beat
-Mirror flashes, I step through
-A brand new name in something true
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
-[Pre-Chorus]
-Heart like thunder, soft like rain
-I turn the doubt into a flame
-Every whisper starts to rise
-Tonight I meet my own spotlight
+function sanitizeProfileText(value, removedReferences = [], fallback = "") {
+  let text = String(value || fallback).trim();
+  for (const reference of removedReferences || []) {
+    if (!reference) continue;
+    text = text.replace(new RegExp(escapeRegExp(reference), "gi"), "original inspiration");
+  }
+  return text.replace(/像|模仿|复刻|同款声音|voice clone/gi, "inspired by").slice(0, 80);
+}
 
-[Chorus]
-This is my debut, shining in motion
-New star, new wave, bright as the ocean
-Hands up, hearts loud, we are alive
-I sing my first dream into the night
+function cleanLyricText(value, fallback, removedReferences = []) {
+  return sanitizeProfileText(value, removedReferences, fallback);
+}
+
+function wantsEnglish(language = "") {
+  return /英|english/i.test(language) && !/中英|双语|混合/i.test(language);
+}
+
+function createOriginalLyrics(profile = {}, removedReferences = []) {
+  const title = cleanLyricText(profile.songTitle, "Debut Light", removedReferences);
+  const theme = cleanLyricText(profile.lyricTheme, "第一次站上舞台，心动与自我闪耀", removedReferences);
+  const stageName = cleanLyricText(profile.stageName, "我", removedReferences);
+
+  if (wantsEnglish(profile.language)) {
+    return `[Title]
+${title}
 
 [Verse]
-Fresh air dancing in the room
-Secret glances, silver bloom
-Every step becomes a sign
-The stage is yours and it is mine
+I step into the light with a brand new name
+Every heartbeat learns the rhythm of the stage
+Soft sparks rising when the room gets loud
+I find my own shine in the moving crowd
+
+[Pre-Chorus]
+This little dream is turning bright
+I hold the moment, I own the night
 
 [Chorus]
-This is my debut, shining in motion
-New star, new wave, bright as the ocean
-Hands up, hearts loud, we are alive
-I sing my first dream into the night`;
+Call me ${stageName}, this is my debut
+Fresh like the morning, shining through
+${theme}
+I sing it out and make it true`;
+  }
+
+  return `[歌名]
+${title}
+
+[主歌]
+灯光落下来的时候我听见心跳
+第一次站上这里也想保持微笑
+风吹过裙摆 像某个秘密讯号
+我把紧张都变成闪耀
+
+[预副歌]
+靠近一点 梦就亮一点
+这一刻由我自己主演
+
+[副歌]
+我是${stageName} 这是我的出道宣言
+${theme}
+清新的风吹向舞台中间
+把第一首歌唱给全世界听见`;
 }
 
 function getTaskId(responseJson) {
@@ -105,12 +140,23 @@ export class MurekaProvider {
     return body;
   }
 
-  async createSongTask({ prompt }) {
+  async createSongTask({ prompt, profile = {}, removedReferences = [] }) {
+    const title = cleanLyricText(profile.songTitle, "Original Debut Song", removedReferences);
+    const lyricTheme = sanitizeProfileText(profile.lyricTheme, removedReferences);
+    const language = sanitizeProfileText(profile.language, removedReferences);
+    const promptWithProfile = [
+      prompt,
+      `Song title: "${title}".`,
+      lyricTheme ? `Lyrics must center on: ${lyricTheme}.` : "",
+      language ? `Lyrics language must be: ${language}.` : ""
+    ].filter(Boolean).join(" ");
+
     const body = {
-      lyrics: createOriginalLyrics(),
+      lyrics: createOriginalLyrics(profile, removedReferences),
       model: this.model || "auto",
       n: this.songCount,
-      prompt: truncate(prompt, 1024),
+      prompt: truncate(promptWithProfile, 1200),
+      title,
       stream: false
     };
 
@@ -158,13 +204,15 @@ export class MurekaProvider {
     throw new Error(`Mureka polling timed out after ${this.pollTimeoutMs}ms`);
   }
 
-  async generatePreview({ prompt }) {
+  async generatePreview({ prompt, profile, removedReferences }) {
     if (!this.apiKey) {
       return this.mock.generatePreview({ prompt });
     }
 
     const { taskId } = await this.createSongTask({
-      prompt: `${prompt} Short preview-oriented arrangement, concise intro and chorus.`
+      prompt: `${prompt} Short preview-oriented arrangement, concise intro and chorus.`,
+      profile,
+      removedReferences
     });
     const { songUrl } = await this.pollSongTask(taskId);
     return {
@@ -174,12 +222,12 @@ export class MurekaProvider {
     };
   }
 
-  async generateFullSong({ prompt }) {
+  async generateFullSong({ prompt, profile, removedReferences }) {
     if (!this.apiKey) {
       return this.mock.generateFullSong({ prompt });
     }
 
-    const { taskId } = await this.createSongTask({ prompt });
+    const { taskId } = await this.createSongTask({ prompt, profile, removedReferences });
     const { songUrl, task } = await this.pollSongTask(taskId);
     return {
       songUrl,

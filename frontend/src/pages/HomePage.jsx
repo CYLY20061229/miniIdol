@@ -6,6 +6,7 @@ import { api } from "../lib/api.js";
 export function HomePage() {
   const [form, setForm] = useState({
     stageName: "",
+    songTitle: "",
     mood: "",
     genre: "",
     lyricTheme: "",
@@ -55,6 +56,14 @@ export function HomePage() {
           value={form.stageName}
           onChange={(event) => updateField("stageName", event.target.value)}
           placeholder="例如：小羊"
+        />
+
+        <label htmlFor="songTitle">歌名</label>
+        <input
+          id="songTitle"
+          value={form.songTitle}
+          onChange={(event) => updateField("songTitle", event.target.value)}
+          placeholder="例如：第一束光"
         />
 
         <label htmlFor="mood">氛围</label>

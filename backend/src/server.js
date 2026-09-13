@@ -34,6 +34,7 @@ function cleanText(value, maxLength = 400) {
 function buildProfile(body) {
   return {
     stageName: cleanText(body?.stageName, 80),
+    songTitle: cleanText(body?.songTitle, 100),
     mood: cleanText(body?.mood, 160),
     genre: cleanText(body?.genre, 160),
     stageFeeling: cleanText(body?.stageFeeling, 160),
@@ -51,6 +52,7 @@ function buildProfile(body) {
 function buildIntentInput(profile) {
   return [
     profile.stageName ? `艺名：${profile.stageName}` : "",
+    profile.songTitle ? `歌名：${profile.songTitle}` : "",
     profile.mood ? `氛围：${profile.mood}` : "",
     profile.genre ? `曲风：${profile.genre}` : "",
     profile.stageFeeling ? `舞台感：${profile.stageFeeling}` : "",
@@ -91,7 +93,7 @@ app.post("/api/intents", async (req, res, next) => {
       return res.status(400).json({ message: "请先填写你的出道企划" });
     }
 
-    const translated = await translateStyle(userInput);
+    const translated = await translateStyle(userInput, profile);
     const intent = createIntent({
       originalInput: userInput,
       originalInputSummary: translated.originalInputSummary,
@@ -132,7 +134,11 @@ app.post("/api/intents/:intentId/preview", async (req, res, next) => {
     }
 
     const provider = createMusicProvider();
-    const preview = await provider.generatePreview({ prompt: intent.safeMusicPrompt });
+    const preview = await provider.generatePreview({
+      prompt: intent.safeMusicPrompt,
+      profile: intent.profile,
+      removedReferences: intent.removedReferences
+    });
     setIntentPreview(intent.id, preview.audioUrl);
     res.json({ ...preview, status: "success" });
   } catch (error) {

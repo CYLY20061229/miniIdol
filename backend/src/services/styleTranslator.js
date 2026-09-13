@@ -259,7 +259,36 @@ function createChineseSummary(input) {
   return `一首${direction}的原创出道曲`;
 }
 
-export async function translateStyle(userInput) {
+function sanitizeForPrompt(value, removedReferences) {
+  let text = String(value || "").trim().replace(/\s+/g, " ");
+  for (const ref of removedReferences) {
+    const escaped = ref.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    text = text.replace(new RegExp(escaped, "gi"), "generic inspiration");
+  }
+  return text
+    .replace(/模仿|复刻|同款声音|照着|一模一样/g, "original inspired direction")
+    .slice(0, 220);
+}
+
+function profilePromptDetails(profile = {}, removedReferences) {
+  const title = sanitizeForPrompt(profile.songTitle, removedReferences);
+  const mood = sanitizeForPrompt(profile.mood, removedReferences);
+  const genre = sanitizeForPrompt(profile.genre || profile.musicStyle, removedReferences);
+  const lyricTheme = sanitizeForPrompt(profile.lyricTheme, removedReferences);
+  const language = sanitizeForPrompt(profile.language, removedReferences);
+  const songDescription = sanitizeForPrompt(profile.songPrompt, removedReferences);
+
+  return [
+    title ? `Working song title: "${title}".` : "",
+    mood ? `Mood: ${mood}.` : "",
+    genre ? `Genre and production direction: ${genre}.` : "",
+    lyricTheme ? `Lyric theme: ${lyricTheme}.` : "",
+    language ? `Lyric language: ${language}.` : "",
+    songDescription ? `User song description after safety rewriting: ${songDescription}.` : ""
+  ].filter(Boolean);
+}
+
+export async function translateStyle(userInput, profile = {}) {
   const removedReferences = findRemovedReferences(userInput);
   const matchedHints = styleHints.filter((hint) => hint.match.test(userInput)).map((hint) => hint.text);
   const fallback = [
@@ -273,6 +302,7 @@ export async function translateStyle(userInput) {
 
   const safeMusicPrompt = [
     "Create a fully original debut song.",
+    ...profilePromptDetails(profile, removedReferences),
     ...new Set([...matchedHints, ...fallback]),
     "Do not imitate or reference any real artist, group, song title, melody, lyrics, logo, voice, or proprietary concept.",
     "No voice cloning. Use generic youthful pop vocal textures and original lyrics."

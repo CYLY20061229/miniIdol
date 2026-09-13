@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { publicDir, publicUrl } from "../config.js";
+import { config, publicDir, publicUrl } from "../config.js";
 
 const execFileAsync = promisify(execFile);
 
@@ -25,6 +25,18 @@ function ensureMockVideo() {
   return publicUrl("/media/mock-video.txt");
 }
 
+function localPathFromPublicUrl(url) {
+  try {
+    const parsed = new URL(url);
+    const base = new URL(config.publicBaseUrl);
+    if (parsed.origin !== base.origin) return url;
+    if (!parsed.pathname.startsWith("/media/") && !parsed.pathname.startsWith("/generated/")) return url;
+    return path.resolve(publicDir, `.${decodeURIComponent(parsed.pathname)}`);
+  } catch {
+    return url;
+  }
+}
+
 export async function renderCoverVideo({ coverUrl, songUrl, jobId }) {
   if (!(await hasFfmpeg())) {
     return { videoUrl: ensureMockVideo(), usedMock: true };
@@ -37,6 +49,8 @@ export async function renderCoverVideo({ coverUrl, songUrl, jobId }) {
   const outputDir = path.resolve(publicDir, "generated");
   fs.mkdirSync(outputDir, { recursive: true });
   const outputPath = path.resolve(outputDir, `${jobId}.mp4`);
+  const coverInput = localPathFromPublicUrl(coverUrl);
+  const songInput = localPathFromPublicUrl(songUrl);
 
   try {
     await execFileAsync("ffmpeg", [
@@ -44,9 +58,9 @@ export async function renderCoverVideo({ coverUrl, songUrl, jobId }) {
       "-loop",
       "1",
       "-i",
-      coverUrl,
+      coverInput,
       "-i",
-      songUrl,
+      songInput,
       "-c:v",
       "libx264",
       "-tune",
@@ -61,7 +75,8 @@ export async function renderCoverVideo({ coverUrl, songUrl, jobId }) {
       outputPath
     ]);
     return { videoUrl: publicUrl(`/generated/${jobId}.mp4`), usedMock: false };
-  } catch {
+  } catch (error) {
+    console.error("ffmpeg render failed:", error?.stderr || error?.message || error);
     return { videoUrl: ensureMockVideo(), usedMock: true };
   }
 }

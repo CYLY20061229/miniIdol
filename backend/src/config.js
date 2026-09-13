@@ -23,6 +23,14 @@ export const config = {
     pollIntervalMs: Number(process.env.MUREKA_POLL_INTERVAL_MS || 5000),
     pollTimeoutMs: Number(process.env.MUREKA_POLL_TIMEOUT_MS || 600000)
   },
+  qwenImage: {
+    apiKey: process.env.QWEN_IMAGE_API_KEY || "",
+    baseUrl: process.env.QWEN_IMAGE_BASE_URL || "https://dashscope.aliyuncs.com",
+    model: process.env.QWEN_IMAGE_MODEL || "wanx2.1-t2i-turbo",
+    size: process.env.QWEN_IMAGE_SIZE || "1024*1024",
+    pollIntervalMs: Number(process.env.QWEN_IMAGE_POLL_INTERVAL_MS || 3000),
+    pollTimeoutMs: Number(process.env.QWEN_IMAGE_POLL_TIMEOUT_MS || 180000)
+  },
   databaseUrl: process.env.DATABASE_URL || "./data/app.sqlite",
   publicBaseUrl: process.env.PUBLIC_BASE_URL || "http://localhost:3001"
 };
