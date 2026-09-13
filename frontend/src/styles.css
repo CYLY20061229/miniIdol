@@ -163,6 +163,9 @@ textarea {
 input {
   min-height: 54px;
   padding: 0 15px;
+}
+
+.redeem-panel input {
   text-transform: uppercase;
 }
 
@@ -302,6 +305,36 @@ video {
   grid-template-columns: 1fr;
   gap: 10px;
   margin: 14px 0;
+}
+
+.profile-panel dl {
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+
+.profile-row {
+  display: grid;
+  gap: 5px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ffffff16;
+}
+
+.profile-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.profile-row dt {
+  color: #ffdd71;
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.profile-row dd {
+  margin: 0;
+  color: #f8f7ff;
+  line-height: 1.55;
 }
 
 .compliance-note {

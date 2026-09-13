@@ -19,6 +19,7 @@ export function initDb() {
       id TEXT PRIMARY KEY,
       original_input TEXT NOT NULL,
       original_input_summary TEXT NOT NULL,
+      profile_json TEXT NOT NULL DEFAULT '{}',
       safe_music_prompt TEXT NOT NULL,
       removed_references TEXT NOT NULL DEFAULT '[]',
       status TEXT NOT NULL DEFAULT 'created',
@@ -53,4 +54,9 @@ export function initDb() {
       FOREIGN KEY (intent_id) REFERENCES intents(id)
     );
   `);
+
+  const intentColumns = db.prepare("PRAGMA table_info(intents)").all().map((column) => column.name);
+  if (!intentColumns.includes("profile_json")) {
+    db.prepare("ALTER TABLE intents ADD COLUMN profile_json TEXT NOT NULL DEFAULT '{}'").run();
+  }
 }

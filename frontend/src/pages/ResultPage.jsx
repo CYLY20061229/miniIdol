@@ -3,6 +3,15 @@ import { Link, useParams } from "react-router-dom";
 import { Download, RotateCcw } from "lucide-react";
 import { api } from "../lib/api.js";
 
+const profileLabels = [
+  ["stageName", "艺名"],
+  ["musicStyle", "音乐风格"],
+  ["artistPositioning", "艺人定位"],
+  ["publicImage", "性格 / 公众形象"],
+  ["selfDescription", "一句话描述自己"],
+  ["songPrompt", "歌曲 prompt"]
+];
+
 export function ResultPage() {
   const { jobId } = useParams();
   const [result, setResult] = useState(null);
@@ -27,6 +36,21 @@ export function ResultPage() {
             <h2>完整歌曲</h2>
             <audio controls src={result.songUrl} />
           </section>
+          {result.profile ? (
+            <section className="panel profile-panel">
+              <h2>你的出道企划</h2>
+              <dl>
+                {profileLabels
+                  .filter(([key]) => result.profile?.[key])
+                  .map(([key, label]) => (
+                    <div className="profile-row" key={key}>
+                      <dt>{label}</dt>
+                      <dd>{result.profile[key]}</dd>
+                    </div>
+                  ))}
+              </dl>
+            </section>
+          ) : null}
           <section className="panel">
             <h2>封面播放视频</h2>
             {result.videoUrl.endsWith(".mp4") ? (

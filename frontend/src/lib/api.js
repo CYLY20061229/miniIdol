@@ -17,10 +17,10 @@ async function request(path, options = {}) {
 }
 
 export const api = {
-  createIntent(userInput) {
+  createIntent(intentPayload) {
     return request("/api/intents", {
       method: "POST",
-      body: JSON.stringify({ userInput })
+      body: JSON.stringify(intentPayload)
     });
   },
   getIntent(intentId) {

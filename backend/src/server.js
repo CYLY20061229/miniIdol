@@ -21,9 +21,36 @@ function publicIntent(intent) {
   return {
     intentId: intent.id,
     originalInputSummary: intent.originalInput,
+    profile: intent.profile,
     status: intent.status,
     hasPreview: Boolean(intent.previewAudioUrl)
   };
+}
+
+function cleanText(value, maxLength = 400) {
+  return String(value || "").trim().slice(0, maxLength);
+}
+
+function buildProfile(body) {
+  return {
+    stageName: cleanText(body?.stageName, 80),
+    musicStyle: cleanText(body?.musicStyle, 160),
+    artistPositioning: cleanText(body?.artistPositioning, 160),
+    publicImage: cleanText(body?.publicImage, 160),
+    selfDescription: cleanText(body?.selfDescription, 180),
+    songPrompt: cleanText(body?.songPrompt || body?.userInput, 600)
+  };
+}
+
+function buildIntentInput(profile) {
+  return [
+    profile.stageName ? `艺名：${profile.stageName}` : "",
+    profile.musicStyle ? `音乐风格：${profile.musicStyle}` : "",
+    profile.artistPositioning ? `艺人定位：${profile.artistPositioning}` : "",
+    profile.publicImage ? `性格 / 公众形象：${profile.publicImage}` : "",
+    profile.selfDescription ? `一句话描述自己：${profile.selfDescription}` : "",
+    profile.songPrompt ? `歌曲 prompt：${profile.songPrompt}` : ""
+  ].filter(Boolean).join("\n");
 }
 
 function publicJob(job) {
@@ -46,15 +73,17 @@ app.get("/api/health", (req, res) => {
 
 app.post("/api/intents", async (req, res, next) => {
   try {
-    const userInput = String(req.body?.userInput || "").trim();
+    const profile = buildProfile(req.body);
+    const userInput = buildIntentInput(profile);
     if (userInput.length < 3) {
-      return res.status(400).json({ message: "请先描述你想要的出道曲风格" });
+      return res.status(400).json({ message: "请先填写你的出道企划" });
     }
 
     const translated = await translateStyle(userInput);
     const intent = createIntent({
       originalInput: userInput,
       originalInputSummary: translated.originalInputSummary,
+      profile,
       safeMusicPrompt: translated.safeMusicPrompt,
       removedReferences: translated.removedReferences
     });
@@ -62,6 +91,7 @@ app.post("/api/intents", async (req, res, next) => {
     res.status(201).json({
       intentId: intent.id,
       originalInputSummary: intent.originalInput,
+      profile: intent.profile,
       status: "created"
     });
   } catch (error) {
@@ -141,11 +171,13 @@ app.get("/api/results/:jobId", (req, res) => {
   if (job.status !== "success" || !job.songUrl || !job.coverUrl || !job.videoUrl) {
     return res.status(409).json({ message: "Result is not ready" });
   }
+  const intent = getIntent(job.intentId);
   res.json({
     jobId: job.id,
     songUrl: job.songUrl,
     coverUrl: job.coverUrl,
-    videoUrl: job.videoUrl
+    videoUrl: job.videoUrl,
+    profile: intent?.profile || null
   });
 });
 

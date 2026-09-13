@@ -6,6 +6,7 @@ const rowToIntent = (row) =>
     id: row.id,
     originalInput: row.original_input,
     originalInputSummary: row.original_input_summary,
+    profile: JSON.parse(row.profile_json || "{}"),
     safeMusicPrompt: row.safe_music_prompt,
     removedReferences: JSON.parse(row.removed_references || "[]"),
     status: row.status,
@@ -14,12 +15,13 @@ const rowToIntent = (row) =>
     updatedAt: row.updated_at
   };
 
-export function createIntent({ originalInput, originalInputSummary, safeMusicPrompt, removedReferences }) {
+export function createIntent({ originalInput, originalInputSummary, profile = {}, safeMusicPrompt, removedReferences }) {
   const now = new Date().toISOString();
   const intent = {
     id: nanoid(16),
     originalInput,
     originalInputSummary,
+    profile,
     safeMusicPrompt,
     removedReferences,
     status: "created",
@@ -29,13 +31,14 @@ export function createIntent({ originalInput, originalInputSummary, safeMusicPro
 
   db.prepare(`
     INSERT INTO intents (
-      id, original_input, original_input_summary, safe_music_prompt,
+      id, original_input, original_input_summary, profile_json, safe_music_prompt,
       removed_references, status, created_at, updated_at
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     intent.id,
     intent.originalInput,
     intent.originalInputSummary,
+    JSON.stringify(intent.profile),
     intent.safeMusicPrompt,
     JSON.stringify(intent.removedReferences),
     intent.status,
