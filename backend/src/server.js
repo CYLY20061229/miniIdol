@@ -34,6 +34,11 @@ function cleanText(value, maxLength = 400) {
 function buildProfile(body) {
   return {
     stageName: cleanText(body?.stageName, 80),
+    mood: cleanText(body?.mood, 160),
+    genre: cleanText(body?.genre, 160),
+    stageFeeling: cleanText(body?.stageFeeling, 160),
+    lyricTheme: cleanText(body?.lyricTheme, 160),
+    artistStyle: cleanText(body?.artistStyle, 160),
     musicStyle: cleanText(body?.musicStyle, 160),
     artistPositioning: cleanText(body?.artistPositioning, 160),
     publicImage: cleanText(body?.publicImage, 160),
@@ -45,6 +50,11 @@ function buildProfile(body) {
 function buildIntentInput(profile) {
   return [
     profile.stageName ? `艺名：${profile.stageName}` : "",
+    profile.mood ? `氛围：${profile.mood}` : "",
+    profile.genre ? `曲风：${profile.genre}` : "",
+    profile.stageFeeling ? `舞台感：${profile.stageFeeling}` : "",
+    profile.lyricTheme ? `歌词主题：${profile.lyricTheme}` : "",
+    profile.artistStyle ? `艺人风格：${profile.artistStyle}` : "",
     profile.musicStyle ? `音乐风格：${profile.musicStyle}` : "",
     profile.artistPositioning ? `艺人定位：${profile.artistPositioning}` : "",
     profile.publicImage ? `性格 / 公众形象：${profile.publicImage}` : "",

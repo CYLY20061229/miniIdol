@@ -5,6 +5,11 @@ import { api } from "../lib/api.js";
 
 const profileLabels = [
   ["stageName", "艺名"],
+  ["mood", "氛围"],
+  ["genre", "曲风"],
+  ["stageFeeling", "舞台感"],
+  ["lyricTheme", "歌词主题"],
+  ["artistStyle", "艺人风格"],
   ["musicStyle", "音乐风格"],
   ["artistPositioning", "艺人定位"],
   ["publicImage", "性格 / 公众形象"],

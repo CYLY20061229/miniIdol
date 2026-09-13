@@ -6,7 +6,11 @@ import { api } from "../lib/api.js";
 export function HomePage() {
   const [form, setForm] = useState({
     stageName: "",
-    musicStyle: "",
+    mood: "",
+    genre: "",
+    stageFeeling: "",
+    lyricTheme: "",
+    artistStyle: "",
     artistPositioning: "",
     publicImage: "",
     selfDescription: "",
@@ -57,12 +61,44 @@ export function HomePage() {
           placeholder="例如：Luna"
         />
 
-        <label htmlFor="musicStyle">音乐风格</label>
+        <label htmlFor="mood">氛围</label>
         <input
-          id="musicStyle"
-          value={form.musicStyle}
-          onChange={(event) => updateField("musicStyle", event.target.value)}
-          placeholder="例如：清爽女团流行、轻电子、暧昧心动"
+          id="mood"
+          value={form.mood}
+          onChange={(event) => updateField("mood", event.target.value)}
+          placeholder="例如：清爽、暧昧、青春、梦幻"
+        />
+
+        <label htmlFor="genre">曲风</label>
+        <input
+          id="genre"
+          value={form.genre}
+          onChange={(event) => updateField("genre", event.target.value)}
+          placeholder="例如：K-pop、轻电子、R&B、流行摇滚"
+        />
+
+        <label htmlFor="stageFeeling">舞台感</label>
+        <input
+          id="stageFeeling"
+          value={form.stageFeeling}
+          onChange={(event) => updateField("stageFeeling", event.target.value)}
+          placeholder="例如：适合女团出道舞台、副歌有记忆点"
+        />
+
+        <label htmlFor="lyricTheme">歌词主题</label>
+        <input
+          id="lyricTheme"
+          value={form.lyricTheme}
+          onChange={(event) => updateField("lyricTheme", event.target.value)}
+          placeholder="例如：初次站上舞台、心动暗恋、自我闪耀"
+        />
+
+        <label htmlFor="artistStyle">艺人风格</label>
+        <input
+          id="artistStyle"
+          value={form.artistStyle}
+          onChange={(event) => updateField("artistStyle", event.target.value)}
+          placeholder="例如：清甜但有力量、未来感、甜酷"
         />
 
         <label htmlFor="artistPositioning">艺人定位</label>
@@ -97,7 +133,7 @@ export function HomePage() {
           placeholder="例如：我想要一首适合女团出道的原创歌曲，清爽、暧昧，有很强的副歌记忆点"
           rows={6}
         />
-        <p className="hint">可以写你想要的氛围、曲风、舞台感、歌词主题，系统会在后端静默转成安全原创音乐元素。</p>
+        <p className="hint">可以填写真实灵感名称，后端会静默转成安全原创音乐元素，不会把内部 prompt 展示给用户。</p>
         {error ? <p className="error">{error}</p> : null}
         <button className="primary-button" disabled={loading}>
           <Mic2 size={19} />
