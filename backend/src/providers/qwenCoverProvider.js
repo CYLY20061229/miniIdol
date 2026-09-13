@@ -7,9 +7,9 @@ export class QwenCoverProvider {
     this.baseUrl = process.env.QWEN_IMAGE_BASE_URL || "https://dashscope.aliyuncs.com";
   }
 
-  async generateCover({ originalInputSummary }) {
+  async generateCover({ originalInputSummary, profile, intentId }) {
     if (!this.apiKey) {
-      return this.mock.generateCover({ originalInputSummary });
+      return this.mock.generateCover({ originalInputSummary, profile, intentId });
     }
 
     // TODO: 根据千问图片生成 API 文档实现 1080x1080 方形封面生成。
@@ -18,6 +18,6 @@ export class QwenCoverProvider {
     // - 不出现真实团体 logo
     // - 不出现版权角色
     // - 输出文件应保存到 backend/public/generated，并返回 public URL
-    return this.mock.generateCover({ originalInputSummary });
+    return this.mock.generateCover({ originalInputSummary, profile, intentId });
   }
 }

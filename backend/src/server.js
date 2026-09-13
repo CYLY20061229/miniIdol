@@ -38,6 +38,7 @@ function buildProfile(body) {
     genre: cleanText(body?.genre, 160),
     stageFeeling: cleanText(body?.stageFeeling, 160),
     lyricTheme: cleanText(body?.lyricTheme, 160),
+    language: cleanText(body?.language, 80),
     artistStyle: cleanText(body?.artistStyle, 160),
     musicStyle: cleanText(body?.musicStyle, 160),
     artistPositioning: cleanText(body?.artistPositioning, 160),
@@ -54,12 +55,13 @@ function buildIntentInput(profile) {
     profile.genre ? `曲风：${profile.genre}` : "",
     profile.stageFeeling ? `舞台感：${profile.stageFeeling}` : "",
     profile.lyricTheme ? `歌词主题：${profile.lyricTheme}` : "",
+    profile.language ? `语言：${profile.language}` : "",
     profile.artistStyle ? `艺人风格：${profile.artistStyle}` : "",
     profile.musicStyle ? `音乐风格：${profile.musicStyle}` : "",
     profile.artistPositioning ? `艺人定位：${profile.artistPositioning}` : "",
     profile.publicImage ? `性格 / 公众形象：${profile.publicImage}` : "",
     profile.selfDescription ? `一句话描述自己：${profile.selfDescription}` : "",
-    profile.songPrompt ? `歌曲 prompt：${profile.songPrompt}` : ""
+    profile.songPrompt ? `歌曲描述：${profile.songPrompt}` : ""
   ].filter(Boolean).join("\n");
 }
 

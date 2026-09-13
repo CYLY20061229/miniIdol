@@ -9,12 +9,13 @@ const profileLabels = [
   ["genre", "曲风"],
   ["stageFeeling", "舞台感"],
   ["lyricTheme", "歌词主题"],
+  ["language", "语言"],
   ["artistStyle", "艺人风格"],
   ["musicStyle", "音乐风格"],
   ["artistPositioning", "艺人定位"],
   ["publicImage", "性格 / 公众形象"],
   ["selfDescription", "一句话描述自己"],
-  ["songPrompt", "歌曲 prompt"]
+  ["songPrompt", "歌曲描述"]
 ];
 
 export function ResultPage() {
@@ -61,7 +62,10 @@ export function ResultPage() {
             {result.videoUrl.endsWith(".mp4") ? (
               <video controls playsInline src={result.videoUrl} poster={result.coverUrl} />
             ) : (
-              <p className="summary">本地未检测到 ffmpeg，已返回 mock video URL。</p>
+              <div className="video-fallback">
+                <img src={result.coverUrl} alt="根据企划生成的封面视频画面" />
+                <p className="summary">封面画面已根据你的出道企划生成。服务器启用 ffmpeg 后会自动导出完整封面播放视频。</p>
+              </div>
             )}
           </section>
           <div className="download-grid">

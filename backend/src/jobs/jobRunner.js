@@ -48,7 +48,11 @@ export function startGenerationJob(jobId) {
       updateJob(job);
 
       const cover = await runStep(job, "generate_cover", () =>
-        coverProvider.generateCover({ originalInputSummary: intent.originalInputSummary })
+        coverProvider.generateCover({
+          originalInputSummary: intent.originalInputSummary,
+          profile: intent.profile,
+          intentId: intent.id
+        })
       );
       job.coverUrl = cover.coverUrl;
       updateJob(job);

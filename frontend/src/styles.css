@@ -245,6 +245,18 @@ video {
   background: #000;
 }
 
+.video-fallback {
+  display: grid;
+  gap: 12px;
+}
+
+.video-fallback img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
 .progress-disc {
   height: 230px;
   display: grid;
