@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Disc3, Mic2, Sparkles } from "lucide-react";
+import { Mic2, Sparkles } from "lucide-react";
 import { api } from "../lib/api.js";
 
 export function HomePage() {
@@ -38,12 +38,6 @@ export function HomePage() {
   return (
     <main className="screen home-screen">
       <section className="hero">
-        <div className="vinyl-wrap" aria-hidden="true">
-          <div className="vinyl">
-            <Disc3 size={160} strokeWidth={1.2} />
-          </div>
-          <div className="tone-arm" />
-        </div>
         <div className="eyebrow"><Sparkles size={16} /> 出道曲企划案生成器</div>
         <h1>生成你的出道曲</h1>
         <p>想象你出道的样子，你出道时唱的歌，我会把它变成一首原创出道曲</p>
