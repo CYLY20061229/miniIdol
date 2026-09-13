@@ -19,6 +19,15 @@ async function runStep(job, name, fn) {
   return result;
 }
 
+async function runConcurrentStep(job, name, assignResult, fn) {
+  setStep(job, name, "running");
+  updateJob(job);
+  const result = await fn();
+  assignResult(result);
+  setStep(job, name, "success");
+  updateJob(job);
+}
+
 export function startGenerationJob(jobId) {
   if (runningJobs.has(jobId)) return;
   runningJobs.add(jobId);
@@ -41,21 +50,33 @@ export function startGenerationJob(jobId) {
       const musicProvider = createMusicProvider();
       const coverProvider = createCoverProvider();
 
-      const song = await runStep(job, "generate_song", () =>
-        musicProvider.generateFullSong({ prompt: intent.safeMusicPrompt })
-      );
-      job.songUrl = song.songUrl;
-      updateJob(job);
-
-      const cover = await runStep(job, "generate_cover", () =>
-        coverProvider.generateCover({
-          originalInputSummary: intent.originalInputSummary,
-          profile: intent.profile,
-          intentId: intent.id
-        })
-      );
-      job.coverUrl = cover.coverUrl;
-      updateJob(job);
+      const parallelResults = await Promise.allSettled([
+        runConcurrentStep(
+          job,
+          "generate_song",
+          (song) => {
+            job.songUrl = song.songUrl;
+          },
+          () => musicProvider.generateFullSong({ prompt: intent.safeMusicPrompt })
+        ),
+        runConcurrentStep(
+          job,
+          "generate_cover",
+          (cover) => {
+            job.coverUrl = cover.coverUrl;
+          },
+          () =>
+            coverProvider.generateCover({
+              originalInputSummary: intent.originalInputSummary,
+              profile: intent.profile,
+              intentId: intent.id
+            })
+        )
+      ]);
+      const rejected = parallelResults.find((result) => result.status === "rejected");
+      if (rejected) {
+        throw rejected.reason;
+      }
 
       const video = await runStep(job, "render_video", () =>
         renderCoverVideo({ coverUrl: job.coverUrl, songUrl: job.songUrl, jobId: job.id })
