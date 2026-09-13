@@ -119,6 +119,21 @@ app.get("/api/intents/:intentId", (req, res) => {
   res.json(publicIntent(intent));
 });
 
+app.post("/api/intents/:intentId/start", (req, res, next) => {
+  try {
+    const intentId = String(req.params.intentId || "").trim();
+    const intent = getIntent(intentId);
+    if (!intent) return res.status(404).json({ success: false, message: "企划不存在" });
+
+    updateIntentStatus(intentId, "unlocked");
+    const job = createJob({ intentId });
+    startGenerationJob(job.id);
+    res.json({ success: true, jobId: job.id });
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/intents/:intentId/preview", async (req, res, next) => {
   try {
     const intent = getIntent(req.params.intentId);

@@ -26,6 +26,9 @@ export const api = {
   getIntent(intentId) {
     return request(`/api/intents/${intentId}`);
   },
+  startGeneration(intentId) {
+    return request(`/api/intents/${intentId}/start`, { method: "POST" });
+  },
   createPreview(intentId) {
     return request(`/api/intents/${intentId}/preview`, { method: "POST" });
   },

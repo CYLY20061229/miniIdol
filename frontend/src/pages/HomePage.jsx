@@ -27,7 +27,8 @@ export function HomePage() {
     setLoading(true);
     try {
       const result = await api.createIntent(form);
-      navigate(`/unlock/${result.intentId}`);
+      const job = await api.startGeneration(result.intentId);
+      navigate(`/generating/${job.jobId}`);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -100,7 +101,6 @@ export function HomePage() {
           placeholder="例如：newjeans风格歌曲"
           rows={6}
         />
-        <p className="hint">可以填写真实灵感名称，后端会静默转成安全原创音乐元素，不会把内部 prompt 展示给用户。</p>
         {error ? <p className="error">{error}</p> : null}
         <button className="primary-button" disabled={loading}>
           <Mic2 size={19} />
